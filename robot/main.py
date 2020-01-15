@@ -77,7 +77,7 @@ async def on_member_join(member):
     channel = client.get_channel(getChannelKey("WELCOME_CHANNEL"))
     await channel.send(
         'Welcome to the UWindsor Robotics & Tech Discord ' + (
-                    '<@' + str(member.id) + '>') + '!!! Please change your nickname to your real name!!')
+                '<@' + str(member.id) + '>') + '!!! Please change your nickname to your real name!!')
 
 
 @client.event
