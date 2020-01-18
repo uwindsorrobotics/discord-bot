@@ -16,6 +16,18 @@ client = commands.Bot(command_prefix='!')
 
 silenced_dict = dict()
 
+client.remove_command("help")
+
+commands_dict = {
+    "ping": "`!ping`\n\tReturns latency in milliseconds",
+    "8ball": "`!8ball <question>`\nReturns an answer to your question",
+    "clear": "`!clear <num>`\nDeletes the amount of messages specified (**ADMIN ONLY**)",
+    "uwu": "`!uwu <sentence>`\nConverts given sentence into UwU",
+    "silence": "`!silence @user <num of minutes>m`\nPrevents user from talking in channels for a certain period of time (**ADMIN ONLY**)",
+    "help": "`!help <command>` prints details of specified command and if none are specified, displays all commands"
+
+}
+
 
 def getChannelKey(channel_name):
     return int(os.getenv(channel_name))
@@ -40,7 +52,8 @@ async def on_message(message):
             role = discord.utils.get(message.author.guild.roles, name="Silenced")
             await (message.author).remove_roles(role)
         else:
-            await message.channel.purge(limit=1)
+            msg = await (message.channel).fetch_message(message.id)
+            await msg.delete()
 
     if "nuub" in [y.name.lower() for y in message.author.roles]:
         await message.guild.get_member(message.author.id).edit(nick=str(message.clean_content))
@@ -129,6 +142,20 @@ async def silence(ctx, user: discord.Member, waitTime='5m'):
 @client.command()
 async def out(ctx):
     await ctx.send(silenced_dict)
+
+
+@client.command()
+async def help(ctx, *, command=None):
+    embed = discord.Embed(title="HELP", colour=0xff1333)
+    if command is None:
+        for i in commands_dict:
+            embed.add_field(name=i, value=commands_dict[i], inline=False)
+    elif command in commands_dict:
+        embed.add_field(name=command, value=commands_dict[command], inline=False)
+    else:
+        await ctx.send("This is not an existing command")
+        return
+    await ctx.send(embed=embed)
 
 
 client.run(token)
