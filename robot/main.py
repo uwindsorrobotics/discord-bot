@@ -4,6 +4,7 @@ import asyncio
 import os
 from dotenv import load_dotenv
 import random
+from random import randint as rand
 
 from uwu import *
 
@@ -23,12 +24,21 @@ commands_dict = {
     "uwu": "`!uwu <sentence>`\nConverts given sentence into UwU",
     "silence": "`!silence @user <num of minutes>m`\nPrevents user from talking in channels for a certain period of time (**ADMIN ONLY**)",
     "help": "`!help <command>`\nprints details of specified command and if none are specified, displays all commands",
-    "remindme": "`!remindme <num>(m || h) <reminder>`\nreminds the user to do the specified task after a certain amount of hours or minutes as specified by user"
+    "remindme": "`!remindme <num>(m || h) <reminder>`\nreminds the user to do the specified task after a certain amount of hours or minutes as specified by user",
+    "mock": "`!mock <sentence>`\niT wIlL makE tHe MesSaGE lIkE tHIs",
+    "toggle": "`!toggle <on || off>`\nToggles the random message converter (**ADMIN ONLY**)\n`!toggle status`\nreturns the toggle position (**ADMIN ONLY**)"
 }
 
 silenced_dict = dict()
 reminder_dict = dict()
 
+randomCoverter = False
+
+def mockConverter(message):
+    newString = ""
+    for i in message:
+        newString += i.upper() if rand(0, 1) == 1 else i.lower()
+    return newString
 
 def getChannelKey(channel_name):
     return int(os.getenv(channel_name))
@@ -47,6 +57,9 @@ async def on_ready():
 async def on_message(message):
     if message.author == client.user:
         return
+
+    if rand(1, 5) == 3 and randomCoverter:
+        await message.channel.send(mockConverter(str(message.content)) if rand(0, 1) == 1 else  receive(message.content))
 
     if "silenced" in [y.name.lower() for y in message.author.roles]:
         if ((getCurrTime() - silenced_dict[message.author.nick][1]) / 60 >= silenced_dict[message.author.nick][0]):
@@ -130,6 +143,25 @@ async def uwu(ctx, *, message):
     uwu = receive(message)
     await ctx.send(uwu)
 
+@client.command()
+async def mock(ctx, *, message):
+    newString = mockConverter(message)
+    await ctx.send(newString)
+
+@client.command()
+async def toggle(ctx, input):
+    global randomCoverter
+    input = input.lower()
+    if input == 'on':
+        randomCoverter = True
+        await ctx.send("The Random Converter has been turned on! Good luck :wink:")
+    elif input == 'off':
+        randomCoverter = False
+        await ctx.send("The Random Converter has been turned off! :sob:")
+    elif input == 'status':
+        await ctx.send(f'Toggled to {randomCoverter}')
+    else:
+        await ctx.send("Incorrect Parameter!!")
 
 @client.command()
 async def silence(ctx, user: discord.Member, waitTime='5m'):
