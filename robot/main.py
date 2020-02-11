@@ -8,6 +8,8 @@ from random import randint as rand
 
 from uwu import *
 
+from floppish import *
+
 import time
 
 load_dotenv()
@@ -146,6 +148,10 @@ async def uwu(ctx, *, message):
 @client.command()
 async def mock(ctx, *, message):
     newString = mockConverter(message)
+
+    msg = await (ctx.message.channel).fetch_message(ctx.message.id)
+    await msg.delete()
+
     await ctx.send(newString)
 
 @client.command()
@@ -173,8 +179,8 @@ async def silence(ctx, user: discord.Member, waitTime='5m'):
     await ctx.send("<@" + str(user.id) + "> has been silenced for " + waitTime[:len(waitTime) - 1] + " minute(s)")
 
 @client.command()
-async def out(ctx):
-    await ctx.send(reminder_dict)
+async def do(ctx):
+    await ctx.send(file=discord.File('temp/s.png'))
 
 
 @client.command()
@@ -203,6 +209,10 @@ async def remindme(ctx, waitTime, *, reminder):
         convertedWaitTime if "m" in waitTime else convertedWaitTime / 60) + " " + (
                        "minute(s)" if "m" in waitTime else "hour(s)"))
 
+@client.command()
+async def flopify(ctx, *, content):
+    convertFlop(content)
+    await ctx.send(file=discord.File('out.png'))
 
 async def checkReminders():
     while not client.is_closed():
