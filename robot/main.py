@@ -25,6 +25,7 @@ commands_dict = {
     "clear": "`!clear <num>`\nDeletes the amount of messages specified (**ADMIN ONLY**)",
     "uwu": "`!uwu <sentence>`\nConverts given sentence into UwU",
     "silence": "`!silence @user <num of minutes>m`\nPrevents user from talking in channels for a certain period of time (**ADMIN ONLY**)",
+    "coinflip": "`!coinflip`\nFlip a coin",
     "help": "`!help <command>`\nprints details of specified command and if none are specified, displays all commands",
     "remindme": "`!remindme <num>(m || h) <reminder>`\nreminds the user to do the specified task after a certain amount of hours or minutes as specified by user",
     "mock": "`!mock <sentence>`\niT wIlL makE tHe MesSaGE lIkE tHIs",
@@ -62,9 +63,8 @@ async def on_message(message):
 
     if rand(1, 5) == 3 and randomCoverter:
         await message.channel.send(mockConverter(str(message.content)) if rand(0, 1) == 1 else  receive(message.content))
-
     if "silenced" in [y.name.lower() for y in message.author.roles]:
-        if ((getCurrTime() - silenced_dict[message.author.nick][1]) / 60 >= silenced_dict[message.author.nick][0]):
+        if ((getCurrTime() - silenced_dict[message.author.id][1]) / 60 >= silenced_dict[message.author.id][0]):
             role = discord.utils.get(message.author.guild.roles, name="Silenced")
             await (message.author).remove_roles(role)
         else:
@@ -155,6 +155,7 @@ async def mock(ctx, *, message):
     await ctx.send(newString)
 
 @client.command()
+@commands.has_role("ADMIN")
 async def toggle(ctx, input):
     global randomCoverter
     input = input.lower()
@@ -170,17 +171,19 @@ async def toggle(ctx, input):
         await ctx.send("Incorrect Parameter!!")
 
 @client.command()
+@commands.has_role("ADMIN")
 async def silence(ctx, user: discord.Member, waitTime='5m'):
     role = discord.utils.get(user.guild.roles, name="Silenced")
     await user.add_roles(role)
     currTime = time.clock_gettime(time.CLOCK_REALTIME)
-
-    silenced_dict[user.display_name] = (int(waitTime.split("m")[0]), currTime)
+    print(user.id)
+    silenced_dict[user.id] = (int(waitTime.split("m")[0]), currTime)
     await ctx.send("<@" + str(user.id) + "> has been silenced for " + waitTime[:len(waitTime) - 1] + " minute(s)")
 
 @client.command()
+@commands.has_role("ADMIN")
 async def do(ctx):
-    await ctx.send(file=discord.File('temp/s.png'))
+    await ctx.send(silenced_dict)
 
 
 @client.command()
@@ -213,6 +216,10 @@ async def remindme(ctx, waitTime, *, reminder):
 async def flopify(ctx, *, content):
     convertFlop(content)
     await ctx.send(file=discord.File('out.png'))
+
+@client.command(aliases=['flip'])
+async def coinflip(ctx):
+    await ctx.send("https://media.giphy.com/media/STQ6QKpChMKKk/source.gif" if rand(1, 100) <= 50 else "https://tenor.com/view/sonic-fox-tails-happy-gif-15311049")
 
 async def checkReminders():
     while not client.is_closed():
