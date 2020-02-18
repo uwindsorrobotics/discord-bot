@@ -37,11 +37,13 @@ reminder_dict = dict()
 
 randomCoverter = False
 
+
 def mockConverter(message):
     newString = ""
     for i in message:
         newString += i.upper() if rand(0, 1) == 1 else i.lower()
     return newString
+
 
 def getChannelKey(channel_name):
     return int(os.getenv(channel_name))
@@ -62,7 +64,7 @@ async def on_message(message):
         return
 
     if rand(1, 5) == 3 and randomCoverter:
-        await message.channel.send(mockConverter(str(message.content)) if rand(0, 1) == 1 else  receive(message.content))
+        await message.channel.send(mockConverter(str(message.content)) if rand(0, 1) == 1 else receive(message.content))
     if "silenced" in [y.name.lower() for y in message.author.roles]:
         if ((getCurrTime() - silenced_dict[message.author.id][1]) / 60 >= silenced_dict[message.author.id][0]):
             role = discord.utils.get(message.author.guild.roles, name="Silenced")
@@ -117,22 +119,23 @@ async def _8ball(ctx, *, question):
 
     await ctx.send(f'Question: {question}\nAnswer: {random.choice(responses)}')
 
-
 @client.command(aliases=['snap'])
 @commands.has_role("ADMIN")
 async def clear(ctx, amount=2):
     await ctx.channel.purge(limit=amount)
 
-
 @client.event
 async def on_member_join(member):
     print(f'{member} has joined the server.')
-    channel = client.get_channel(getChannelKey("WELCOME_CHANNEL"))
-    await channel.send('Welcome to the UWindsor Robotics & Tech Discord ' + ('<@' + str(member.id) + '>') + '!!!')
-    await channel.send("Please enter your **REAL NAME** (FIRST LAST)!!");
 
-    role = discord.utils.get(member.guild.roles, name="Nuub")
-    await member.add_roles(role)
+    if member.guild.id == 661316935304085538:
+        print("I GOT THROUGH HOES")
+        channel = client.get_channel(getChannelKey("WELCOME_CHANNEL"))
+        await channel.send('Welcome to the UWindsor Robotics & Tech Discord ' + ('<@' + str(member.id) + '>') + '!!!')
+        await channel.send("Please enter your **REAL NAME** (FIRST LAST)!!");
+
+        role = discord.utils.get(member.guild.roles, name="Nuub")
+        await member.add_roles(role)
 
 
 @client.event
@@ -145,6 +148,7 @@ async def uwu(ctx, *, message):
     uwu = receive(message)
     await ctx.send(uwu)
 
+
 @client.command()
 async def mock(ctx, *, message):
     newString = mockConverter(message)
@@ -153,6 +157,7 @@ async def mock(ctx, *, message):
     await msg.delete()
 
     await ctx.send(newString)
+
 
 @client.command()
 @commands.has_role("ADMIN")
@@ -170,6 +175,7 @@ async def toggle(ctx, input):
     else:
         await ctx.send("Incorrect Parameter!!")
 
+
 @client.command()
 @commands.has_role("ADMIN")
 async def silence(ctx, user: discord.Member, waitTime='5m'):
@@ -179,6 +185,7 @@ async def silence(ctx, user: discord.Member, waitTime='5m'):
     print(user.id)
     silenced_dict[user.id] = (int(waitTime.split("m")[0]), currTime)
     await ctx.send("<@" + str(user.id) + "> has been silenced for " + waitTime[:len(waitTime) - 1] + " minute(s)")
+
 
 @client.command()
 @commands.has_role("ADMIN")
@@ -212,14 +219,18 @@ async def remindme(ctx, waitTime, *, reminder):
         convertedWaitTime if "m" in waitTime else convertedWaitTime / 60) + " " + (
                        "minute(s)" if "m" in waitTime else "hour(s)"))
 
+
 @client.command()
 async def flopify(ctx, *, content):
     convertFlop(content)
     await ctx.send(file=discord.File('out.png'))
 
+
 @client.command(aliases=['flip'])
 async def coinflip(ctx):
-    await ctx.send("https://media.giphy.com/media/STQ6QKpChMKKk/source.gif" if rand(1, 100) <= 50 else "https://tenor.com/view/sonic-fox-tails-happy-gif-15311049")
+    await ctx.send("https://media.giphy.com/media/STQ6QKpChMKKk/source.gif" if rand(1,
+                                                                                    100) <= 50 else "https://tenor.com/view/sonic-fox-tails-happy-gif-15311049")
+
 
 async def checkReminders():
     while not client.is_closed():
@@ -229,6 +240,7 @@ async def checkReminders():
                 channel = client.get_channel(reminder_dict[i][4])
                 await channel.send('<@' + str(reminder_dict[i][3]) + '>\n' + reminder_dict[i][0])
                 reminder_dict.pop(i)
+
 
 client.loop.create_task(checkReminders())
 client.run(token)
