@@ -119,23 +119,23 @@ async def _8ball(ctx, *, question):
 
     await ctx.send(f'Question: {question}\nAnswer: {random.choice(responses)}')
 
+
 @client.command(aliases=['snap'])
 @commands.has_role("ADMIN")
 async def clear(ctx, amount=2):
     await ctx.channel.purge(limit=amount)
 
+
 @client.event
 async def on_member_join(member):
     print(f'{member} has joined the server.')
 
-    if member.guild.id == 661316935304085538:
-        print("I GOT THROUGH HOES")
-        channel = client.get_channel(getChannelKey("WELCOME_CHANNEL"))
-        await channel.send('Welcome to the UWindsor Robotics & Tech Discord ' + ('<@' + str(member.id) + '>') + '!!!')
-        await channel.send("Please enter your **REAL NAME** (FIRST LAST)!!");
+    channel = client.get_channel(getChannelKey("WELCOME_CHANNEL"))
+    await channel.send('Welcome to the UWindsor Robotics & Tech Discord ' + ('<@' + str(member.id) + '>') + '!!!')
+    await channel.send("Please enter your **REAL NAME** (FIRST LAST)!!");
 
-        role = discord.utils.get(member.guild.roles, name="Nuub")
-        await member.add_roles(role)
+    role = discord.utils.get(member.guild.roles, name="Nuub")
+    await member.add_roles(role)
 
 
 @client.event
