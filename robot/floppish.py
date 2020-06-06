@@ -2,6 +2,7 @@ from PIL import Image
 
 flopDict = dict()
 
+print("haha this is kinda something to force a push to my heroku shit")
 
 def loadLetters():
     global flopDict
@@ -17,36 +18,40 @@ loadLetters()
 def convertFlop(context):
     context = context.upper()
 
-    spaces = map(lambda x: True if x == " " else False, context)
-    num = sum(spaces)
-
     img = Image.open('dat/flop.png', 'r')
+
     img = img.resize((35, 35), Image.ANTIALIAS)
+
     size = img.size[0]
-    letterspaces = (len(context) - num) * 7 * 35
-    inbetweenspaces = (len(context) - num) * 2 * 35
-    spacesspace = (num - (1 if num > 0 else 0)) * 3 * 35
-    print(letterspaces, inbetweenspaces, spacesspace)
-    background = Image.new('RGBA', (letterspaces + inbetweenspaces + spacesspace, 7 * 35), (0, 0, 0, 0))
 
     x, y = 0, 0
-    xMax = 0
-    for i in context:
-        if i == " ":
-            xMax += size * 2
-            x = xMax + size
-            continue
-        baseX = xMax + size if xMax != 0 else 0
-        for n in flopDict[i].split("\n"):
-            for f in n.split("/"):
-                if f == 'flop':
-                    background.paste(img, (x, y))
-                x += size
-            xMax = x if x > xMax else xMax
-            x = baseX
-            y += size
+    mostRight = 0
+    previous_right = 0
+    coordinates = list()
+    for letter in context:
 
-        x = xMax + size
+        if letter == " ":
+            previous_right += size * 2
+            mostRight += size * 2
+            x = previous_right
+            continue
+
+        for line in flopDict[letter].split("\n"):
+            for key in line.split("/"):
+                if key == "flop":
+                    coordinates.append((x, y))
+                x += size
+            y += size
+            mostRight = x if mostRight < x else mostRight
+            x = previous_right
+
+        previous_right = mostRight
+        x = previous_right
         y = 0
 
-    background.save('out.png')
+    background = Image.new('RGBA', (max(coordinates)[0] + size, 13 * 35), (0, 0, 0, 0))
+
+    for i in coordinates:
+        background.paste(img, i)
+
+    background.save('dat/out.png')

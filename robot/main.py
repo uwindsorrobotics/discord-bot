@@ -4,7 +4,6 @@ import asyncio
 import os
 from dotenv import load_dotenv
 import random
-from random import randint as rand
 
 from uwu import *
 
@@ -65,8 +64,9 @@ async def on_message(message):
 
     if rand(1, 5) == 3 and randomCoverter:
         await message.channel.send(mockConverter(str(message.content)) if rand(0, 1) == 1 else receive(message.content))
+
     if "silenced" in [y.name.lower() for y in message.author.roles]:
-        if ((getCurrTime() - silenced_dict[message.author.id][1]) / 60 >= silenced_dict[message.author.id][0]):
+        if (getCurrTime() - silenced_dict[message.author.id][1]) / 60 >= silenced_dict[message.author.id][0]:
             role = discord.utils.get(message.author.guild.roles, name="Silenced")
             await (message.author).remove_roles(role)
         else:
@@ -75,8 +75,8 @@ async def on_message(message):
 
     if "nuub" in [y.name.lower() for y in message.author.roles]:
         await message.guild.get_member(message.author.id).edit(nick=str(message.clean_content))
-        role = discord.utils.get((message.author).guild.roles, name="Nuub")
-        await (message.author).remove_roles(role)
+        role = discord.utils.get(message.author.guild.roles, name="Nuub")
+        await message.author.remove_roles(role)
         await message.channel.purge(limit=100)
 
     if "nuub" not in [y.name.lower() for y in message.author.roles] and "silenced" not in [y.name.lower() for y in
@@ -223,13 +223,12 @@ async def remindme(ctx, waitTime, *, reminder):
 @client.command()
 async def flopify(ctx, *, content):
     convertFlop(content)
-    await ctx.send(file=discord.File('out.png'))
+    await ctx.send(file=discord.File('dat/out.png'))
 
 
 @client.command(aliases=['flip'])
 async def coinflip(ctx):
-    await ctx.send("https://media.giphy.com/media/STQ6QKpChMKKk/source.gif" if rand(1,
-                                                                                    100) <= 50 else "https://tenor.com/view/sonic-fox-tails-happy-gif-15311049")
+    await ctx.send("https://gph.is/g/4Dk8dAp" if rand(1, 100) <= 50 else "https://gph.is/g/ZrK0wBl")
 
 
 async def checkReminders():
