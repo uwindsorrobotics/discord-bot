@@ -2,22 +2,19 @@ from PIL import Image
 
 flopDict = dict()
 
-print("haha this is kinda something to force a push to my heroku shit")
 
 def loadLetters():
     global flopDict
-    people = open("dat/letters.dat", "r").read().strip().split("@")
-    for i in range(len(people)):
-        if len(people[i]) == 1:
-            flopDict[people[i]] = people[i + 1][1:]
+    characters = open("dat/letters.dat", "r").read().strip().split("!     !")
+    for i in range(len(characters)):
+        if len(characters[i]) == 1:
+            flopDict[characters[i]] = characters[i + 1][1:]
 
 
 loadLetters()
 
 
 def convertFlop(context):
-    context = context.upper()
-
     img = Image.open('dat/flop.png', 'r')
 
     img = img.resize((35, 35), Image.ANTIALIAS)
@@ -26,17 +23,24 @@ def convertFlop(context):
 
     x, y = 0, 0
     mostRight = 0
+    mostDown = 0
     previous_right = 0
     coordinates = list()
     for letter in context:
 
-        if letter == " ":
-            previous_right += size * 2
-            mostRight += size * 2
+        if previous_right >= 4500 and letter == " ":
+            x = mostRight = previous_right = 0
+            mostDown += size * 12
+            y = mostDown
+            continue
+        elif letter == " ":
+            previous_right += size * 4
+            mostRight += size * 4
             x = previous_right
             continue
 
         for line in flopDict[letter].split("\n"):
+
             for key in line.split("/"):
                 if key == "flop":
                     coordinates.append((x, y))
@@ -47,9 +51,10 @@ def convertFlop(context):
 
         previous_right = mostRight
         x = previous_right
-        y = 0
+        y = mostDown
 
-    background = Image.new('RGBA', (max(coordinates)[0] + size, 13 * 35), (0, 0, 0, 0))
+    background = Image.new('RGBA', (max(coordinates)[0] + size, (mostDown + size * 12) if mostDown != 0 else (13 * 35)),
+                           (0, 0, 0, 0))
 
     for i in coordinates:
         background.paste(img, i)
