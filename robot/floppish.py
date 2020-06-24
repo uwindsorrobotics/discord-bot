@@ -14,8 +14,8 @@ def loadLetters():
 loadLetters()
 
 
-def convertFlop(context):
-    img = Image.open('dat/flop.png', 'r')
+def convertFlop(context, image):
+    img = Image.open(f'dat/{image}', 'r')
 
     img = img.resize((35, 35), Image.ANTIALIAS)
 
@@ -53,7 +53,7 @@ def convertFlop(context):
         x = previous_right
         y = mostDown
 
-    background = Image.new('RGBA', (max(coordinates)[0] + size, (mostDown + size * 12) if mostDown != 0 else (13 * 35)),
+    background = Image.new('RGBA', (max(coordinates)[0] + size, (mostDown + size * 12) if mostDown != 0 else (13 * size)),
                            (0, 0, 0, 0))
 
     for i in coordinates:

@@ -4,6 +4,8 @@ import asyncio
 import os
 from dotenv import load_dotenv
 import random
+import requests
+import shutil
 
 from uwu import *
 
@@ -28,7 +30,9 @@ commands_dict = {
     "help": "`!help <command>`\nprints details of specified command and if none are specified, displays all commands",
     "remindme": "`!remindme <num>(m || h) <reminder>`\nreminds the user to do the specified task after a certain amount of hours or minutes as specified by user",
     "mock": "`!mock <sentence>`\niT wIlL makE tHe MesSaGE lIkE tHIs",
-    "toggle": "`!toggle <on || off>`\nToggles the random message converter (**ADMIN ONLY**)\n`!toggle status`\nreturns the toggle position (**ADMIN ONLY**)"
+    "toggle": "`!toggle <on || off>`\nToggles the random message converter (**ADMIN ONLY**)\n`!toggle status`\nreturns the toggle position (**ADMIN ONLY**)",
+    "flopify": "`!flopify <text>`\nGenerates text out of flop faces",
+    "emojify": "`!emojify <custom_emoji> <text>`\nGenerates text out of provided custom emoji"
 }
 
 silenced_dict = dict()
@@ -61,6 +65,9 @@ async def on_ready():
 async def on_message(message):
     if message.author == client.user:
         return
+
+    if message.author.name == "PositiveAuthor":
+        await message.add_reaction(":harsh:725431663152201850")
 
     if rand(1, 5) == 3 and randomCoverter:
         await message.channel.send(mockConverter(str(message.content)) if rand(0, 1) == 1 else receive(message.content))
@@ -122,8 +129,8 @@ async def _8ball(ctx, *, question):
 
 @client.command(aliases=['snap'])
 @commands.has_role("ADMIN")
-async def clear(ctx, amount=2):
-    await ctx.channel.purge(limit=amount)
+async def clear(ctx, amount=1):
+    await ctx.channel.purge(limit=amount + 1)
 
 
 @client.event
@@ -222,13 +229,27 @@ async def remindme(ctx, waitTime, *, reminder):
 
 @client.command()
 async def flopify(ctx, *, content):
-    convertFlop(content)
+    convertFlop(content, "flop.png")
     await ctx.send(file=discord.File('dat/out.png'))
 
 
 @client.command(aliases=['flip'])
 async def coinflip(ctx):
     await ctx.send("https://gph.is/g/4Dk8dAp" if rand(1, 100) <= 50 else "https://gph.is/g/ZrK0wBl")
+
+
+@client.command()
+async def emojify(ctx, emoji: discord.Emoji, *, content):
+    r = requests.get(emoji.url, stream=True)
+    if r.status_code == 200:
+        r.raw.decode_content = True
+        with open("dat/" + emoji.name + ".png", 'wb') as f:
+            shutil.copyfileobj(r.raw, f)
+        # await ctx.send(f'Successfully downloaded {emoji.name}.png!')
+        # await ctx.send(file=discord.File(f'dat/{emoji.name}.png'))
+    print(content, emoji.name)
+    convertFlop(content, emoji.name + ".png")
+    await ctx.send(file=discord.File('dat/out.png'))
 
 
 async def checkReminders():
