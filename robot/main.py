@@ -32,7 +32,8 @@ commands_dict = {
     "mock": "`!mock <sentence>`\niT wIlL makE tHe MesSaGE lIkE tHIs",
     "toggle": "`!toggle <on || off>`\nToggles the random message converter (**ADMIN ONLY**)\n`!toggle status`\nreturns the toggle position (**ADMIN ONLY**)",
     "flopify": "`!flopify <text>`\nGenerates text out of flop faces",
-    "emojify": "`!emojify <custom_emoji> <text>`\nGenerates text out of provided custom emoji"
+    "emojify": "`!emojify <custom_emoji> <text>`\nGenerates text out of provided custom emoji",
+    "searchify": "`!searchify <search term>`"
 }
 
 silenced_dict = dict()
@@ -250,6 +251,14 @@ async def emojify(ctx, emoji: discord.Emoji, *, content):
     print(content, emoji.name)
     convertFlop(content, emoji.name + ".png")
     await ctx.send(file=discord.File('dat/out.png'))
+
+
+@client.command()
+async def searchify(ctx, *, searchTerm):
+    link = "https://lmgtfy.com/?q="
+    link += searchTerm.replace(" ", "+")
+    await ctx.send(link)
+
 
 
 async def checkReminders():
