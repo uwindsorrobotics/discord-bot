@@ -40,7 +40,7 @@ silenced_dict = dict()
 reminder_dict = dict()
 
 randomCoverter = False
-
+reminder_counter = 0
 
 def mockConverter(message):
     newString = ""
@@ -198,7 +198,7 @@ async def silence(ctx, user: discord.Member, waitTime='5m'):
 @client.command()
 @commands.has_role("ADMIN")
 async def do(ctx):
-    await ctx.send(silenced_dict)
+    await ctx.send(reminder_dict)
 
 
 @client.command()
@@ -217,12 +217,14 @@ async def help(ctx, *, command=None):
 
 @client.command()
 async def remindme(ctx, waitTime, *, reminder):
+    global reminder_counter
     if "m" not in waitTime and "h" not in waitTime:
         await ctx.send("Incorrect unit of time!! Please use either 'm' or 'h'")
         return
     convertedWaitTime = int(waitTime.split("m")[0]) if "m" in waitTime else int(waitTime.split("h")[0]) * 60
-    reminder_dict[len(reminder_dict)] = (
-        reminder, convertedWaitTime, getCurrTime(), ctx.message.author.id, ctx.message.channel.id)
+    reminder_dict[reminder_counter] = (
+        reminder, int(convertedWaitTime), int(getCurrTime()), ctx.message.author.id, ctx.message.channel.id)
+    reminder_counter += 1
     await ctx.send("Okay, <@" + str(ctx.message.author.id) + ">. I will remind you in " + str(
         convertedWaitTime if "m" in waitTime else convertedWaitTime / 60) + " " + (
                        "minute(s)" if "m" in waitTime else "hour(s)"))
@@ -263,12 +265,15 @@ async def searchify(ctx, *, searchTerm):
 
 async def checkReminders():
     while not client.is_closed():
-        await asyncio.sleep(5)
-        for i in range(len(reminder_dict)):
-            if (getCurrTime() - reminder_dict[i][2]) / 60 >= reminder_dict[i][1]:
+        await asyncio.sleep(1)
+        delList = list()
+        for i in reminder_dict.keys():
+            if (int(getCurrTime()) - reminder_dict[i][2]) / 60 >= reminder_dict[i][1]:
                 channel = client.get_channel(reminder_dict[i][4])
                 await channel.send('<@' + str(reminder_dict[i][3]) + '>\n' + reminder_dict[i][0])
-                reminder_dict.pop(i)
+                delList.append(i)
+        for i in delList:
+            reminder_dict.pop(i)
 
 
 client.loop.create_task(checkReminders())
