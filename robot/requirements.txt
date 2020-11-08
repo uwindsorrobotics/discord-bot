@@ -56,7 +56,7 @@ Twisted==17.9.0
 typing-extensions==3.7.4.2
 ufw==0.36
 unattended-upgrades==0.1
-urllib3==1.22
+urllib3==1.24.2
 websockets==8.1
 yarl==1.4.2
 zope.interface==4.3.2
